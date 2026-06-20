@@ -6,8 +6,8 @@ Köszönöm, hogy hozzájárulnál a projekthez! Az alábbiakban leírom, hogyan
 
 1. Forkold és klónozd a repót:
    ```bash
-   git clone https://github.com/doomhyena/ellenorzo.git
-   cd ellenorzo
+   git clone https://github.com/doomhyena/toll.git
+   cd toll
    ```
 
 2. Telepítsd az előfeltételeket (Go 1.23+, Node.js 18+, Wails CLI v2).
