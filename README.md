@@ -51,6 +51,8 @@ A lefordított bináris a `build/bin/toll.exe` helyen jön létre.
 - **React 18 + TypeScript** - felhasználói felület
 - **Vite 3** - frontend build eszköz
 - **e-Kréta MOBILE API** - `authorization_code + PKCE` hitelesítési folyamat
+- **Forrás** - az API használatát a következő dokumentáció alapján dolgoztam ki: https://docs.zan1456.dev/e-kreta/app
+- **Referencia projekt** - a Kréta API integrációhoz a Zan1456/folio projektet is felhasználtam: https://github.com/Zan1456/folio
 
 ## Megjegyzés
 
