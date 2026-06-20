@@ -6,7 +6,7 @@ Köszönöm, hogy hozzájárulnál a projekthez! Az alábbiakban leírom, hogyan
 
 1. Forkold és klónozd a repót:
    ```bash
-   git clone https://github.com<doomhyena/ellenorzo.git
+   git clone https://github.com/doomhyena/ellenorzo.git
    cd ellenorzo
    ```
 
