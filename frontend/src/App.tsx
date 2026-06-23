@@ -11,7 +11,7 @@ import HianyzasokPage from "./components/HianyzasokPage";
 import ChangelogScreen from "./components/ChangelogScreen";
 import SettingsPage from "./components/SettingsPage";
 import LoginPage from "./components/LoginPage";
-import { GetCurrentAccount, GetChangesSinceLastOpen, GetCurrentTheme } from "../wailsjs/go/main/App";
+import { GetCurrentAccount, GetChangesSinceLastOpen, GetCurrentTheme, GetCustomColor } from "../wailsjs/go/main/App";
 import type { AccountInfo } from "./types/kreta";
 import type { models } from "../wailsjs/go/models";
 import { markSync } from "./utils/sync";
@@ -47,7 +47,7 @@ function App() {
   });
   const [changes, setChanges] = useState<models.Change[]>([]);
   const [changelogDismissed, setChangelogDismissed] = useState(false);
-  const [currentTheme, setCurrentTheme] = useState("Erdő");
+  const [currentTheme, setCurrentTheme] = useState("Zöld");
 
   useEffect(() => {
     const handleOnline = () => {
@@ -71,12 +71,17 @@ function App() {
 
   useEffect(() => {
     GetCurrentTheme()
-      .then((name) => {
-        const theme = name || "Erdő";
+      .then(async (name) => {
+        const theme = name || "Zöld";
+        if (theme === "Egyedi") {
+          const color = await GetCustomColor().catch(() => "#2d6a4f");
+          applyTheme("Egyedi", color);
+        } else {
+          applyTheme(theme);
+        }
         setCurrentTheme(theme);
-        applyTheme(theme);
       })
-      .catch(() => applyTheme("Erdő"));
+      .catch(() => applyTheme("Zöld"));
   }, []);
 
   useEffect(() => {
@@ -128,7 +133,7 @@ function App() {
     switch (currentPage) {
       case "home":           return <HomePage account={account} />;
       case "orarend":        return <OrarendPage />;
-      case "osztalyzatok":   return <OsztalyzatokPage />;
+      case "osztalyzatok":   return <OsztalyzatokPage themeKey={currentTheme} />;
       case "hazik":          return <HaziFeladatokPage />;
       case "fuzet":          return <FuzetPage />;
       case "szamonkeresek":  return <SzamonkeresekPage />;

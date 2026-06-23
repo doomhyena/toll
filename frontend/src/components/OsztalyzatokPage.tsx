@@ -12,6 +12,15 @@ import {
   ReferenceLine,
 } from "recharts";
 
+type PeriodKey = "1w" | "2w" | "1m" | "3m";
+
+const PERIODS: { key: PeriodKey; label: string; days: number }[] = [
+  { key: "1w", label: "Hetes", days: 7 },
+  { key: "2w", label: "2 hetes", days: 14 },
+  { key: "1m", label: "Havi", days: 30 },
+  { key: "3m", label: "3 hónapos", days: 90 },
+];
+
 const GRADE_COLORS: Record<number, { bg: string; border: string; text: string }> = {
   5: { bg: "rgba(74,222,128,.15)", border: "rgba(74,222,128,.4)",  text: "#4ade80" },
   4: { bg: "rgba(134,239,172,.12)", border: "rgba(134,239,172,.35)", text: "#86efac" },
@@ -167,9 +176,13 @@ function getSemesterOrder(key: string): number {
 }
 
 const SUBJECT_PALETTE = [
-  "#4a7c59", "#5e8f7a", "#3d8075", "#6b9e8a",
-  "#7ab89a", "#55736a", "#4e7a68", "#3c6b55",
+  "#5e8fa0", "#a07840", "#8f5e90", "#5e906e",
+  "#8f8f40", "#5e6090", "#905e60", "#408f90",
 ];
+
+function cssVar(name: string, fb = ""): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fb;
+}
 
 function buildTrendData(subjects: SubjectGroup[]) {
   const semSet = new Set<string>();
@@ -216,6 +229,10 @@ function TrendChart({ subjects }: { subjects: SubjectGroup[] }) {
   const [hidden, setHidden] = useState<Set<string>>(new Set());
   const { data, semesters } = buildTrendData(activeSubjects);
 
+  const accentBright  = cssVar("--accent-bright", "#a3c940");
+  const textDim       = cssVar("--text-dim",       "#6a8860");
+  const cardBgSubtle  = cssVar("--card-bg-subtle", "#1a2620");
+
   if (semesters.length === 0) return null;
 
   const toggle = (name: string) =>
@@ -240,7 +257,7 @@ function TrendChart({ subjects }: { subjects: SubjectGroup[] }) {
           className={`trend-chip trend-chip-overall${hidden.has("__overall__") ? " dim" : ""}`}
           onClick={() => toggle("__overall__")}
         >
-          <span className="trend-chip-dot" style={{ background: "#a3c940" }} />
+          <span className="trend-chip-dot" style={{ background: accentBright }} />
           Összesített
         </button>
       </div>
@@ -248,21 +265,21 @@ function TrendChart({ subjects }: { subjects: SubjectGroup[] }) {
         <LineChart data={data} margin={{ top: 10, right: 16, bottom: 5, left: -20 }}>
           <XAxis
             dataKey="semester"
-            tick={{ fill: "#6a8860", fontSize: 11 }}
-            axisLine={{ stroke: "#2a4a2a" }}
+            tick={{ fill: textDim, fontSize: 11 }}
+            axisLine={{ stroke: cardBgSubtle }}
             tickLine={false}
           />
           <YAxis
             domain={[1, 5]}
             ticks={[1, 2, 3, 4, 5]}
-            tick={{ fill: "#6a8860", fontSize: 11 }}
+            tick={{ fill: textDim, fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />
-          <ReferenceLine y={2} stroke="#1e3a1e" strokeDasharray="4 3" />
-          <ReferenceLine y={3} stroke="#1e3a1e" strokeDasharray="4 3" />
-          <ReferenceLine y={4} stroke="#1e3a1e" strokeDasharray="4 3" />
-          <ReferenceLine y={5} stroke="#1e3a1e" strokeDasharray="4 3" />
+          <ReferenceLine y={2} stroke={cardBgSubtle} strokeDasharray="4 3" />
+          <ReferenceLine y={3} stroke={cardBgSubtle} strokeDasharray="4 3" />
+          <ReferenceLine y={4} stroke={cardBgSubtle} strokeDasharray="4 3" />
+          <ReferenceLine y={5} stroke={cardBgSubtle} strokeDasharray="4 3" />
           <Tooltip content={<TrendTooltip />} />
           {activeSubjects.map((s, i) =>
             hidden.has(s.name) ? null : (
@@ -281,9 +298,9 @@ function TrendChart({ subjects }: { subjects: SubjectGroup[] }) {
             <Line
               type="monotone"
               dataKey="__overall__"
-              stroke="#a3c940"
+              stroke={accentBright}
               strokeWidth={2.5}
-              dot={{ fill: "#a3c940", r: 4, strokeWidth: 0 }}
+              dot={{ fill: accentBright, r: 4, strokeWidth: 0 }}
               connectNulls
             />
           )}
@@ -294,12 +311,13 @@ function TrendChart({ subjects }: { subjects: SubjectGroup[] }) {
 }
 
 
-export default function OsztalyzatokPage() {
+export default function OsztalyzatokPage({ themeKey: _ }: { themeKey?: string }) {
   const [grades, setGrades] = useState<Grade[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [exportOpen, setExportOpen] = useState(false);
+  const [period, setPeriod] = useState<PeriodKey>("1m");
   const exportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -329,12 +347,16 @@ export default function OsztalyzatokPage() {
     setExpanded(Object.fromEntries(subjects.map((s) => [s.name, !allExpanded])));
 
   const meaningfulGrades = grades.filter((g) => g.value > 0 && !g.typeUid?.includes("jegy_ertekeles"));
-  const semGrades = grades.filter((g) => g.typeUid?.includes("felevi_jegy"));
   const yearGrades = grades.filter((g) => g.typeUid?.includes("evvegi_jegy"));
 
   const overallAvg = weightedAvg(meaningfulGrades);
-  const semAvg = semGrades.length > 0 ? semGrades.reduce((s, g) => s + g.value, 0) / semGrades.length : NaN;
   const yearAvg = yearGrades.length > 0 ? yearGrades.reduce((s, g) => s + g.value, 0) / yearGrades.length : NaN;
+
+  const selectedPeriod = PERIODS.find((p) => p.key === period)!;
+  const periodCutoff = new Date();
+  periodCutoff.setDate(periodCutoff.getDate() - selectedPeriod.days);
+  const periodGrades = meaningfulGrades.filter((g) => new Date(g.date) >= periodCutoff);
+  const periodAvg = weightedAvg(periodGrades);
 
   return (
     <div className="oz-page">
@@ -348,11 +370,11 @@ export default function OsztalyzatokPage() {
       {!loading && !error && (
         <>
           <section className="oz-summary">
-            {!isNaN(semAvg) && (
-              <div className="oz-stat-card">
-                <div className="oz-stat-label">Félévi tantárgyi átlag</div>
-                <div className="oz-stat-val" style={{ color: gradeColor(Math.round(semAvg)).text }}>{fmtAvg(semAvg)}</div>
-                <div className="oz-stat-sub">{semGrades.length} tantárgyból</div>
+            {meaningfulGrades.length > 0 && (
+              <div className="oz-stat-card oz-stat-card-accent">
+                <div className="oz-stat-label">Éves átlag</div>
+                <div className="oz-stat-val" style={{ color: gradeColor(Math.round(overallAvg)).text }}>{fmtAvg(overallAvg)}</div>
+                <div className="oz-stat-sub">{meaningfulGrades.length} jegy, súlyozással</div>
               </div>
             )}
             {!isNaN(yearAvg) && (
@@ -363,10 +385,23 @@ export default function OsztalyzatokPage() {
               </div>
             )}
             {meaningfulGrades.length > 0 && (
-              <div className="oz-stat-card oz-stat-card-accent">
-                <div className="oz-stat-label">Egész éves súlyozott átlag</div>
-                <div className="oz-stat-val" style={{ color: gradeColor(Math.round(overallAvg)).text }}>{fmtAvg(overallAvg)}</div>
-                <div className="oz-stat-sub">{meaningfulGrades.length} jegy, minden súlyozással</div>
+              <div className="oz-stat-card">
+                <div className="oz-stat-label">Időszaki átlag</div>
+                <div className="oz-period-tabs">
+                  {PERIODS.map((p) => (
+                    <button
+                      key={p.key}
+                      className={`oz-period-tab${period === p.key ? " active" : ""}`}
+                      onClick={() => setPeriod(p.key)}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="oz-stat-val" style={{ color: isNaN(periodAvg) ? "var(--text-faint)" : gradeColor(Math.round(periodAvg)).text }}>
+                  {fmtAvg(periodAvg)}
+                </div>
+                <div className="oz-stat-sub">{periodGrades.length} jegy az utolsó {selectedPeriod.days} napból</div>
               </div>
             )}
           </section>

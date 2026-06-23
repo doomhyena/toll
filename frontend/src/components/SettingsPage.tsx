@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { SetTheme } from "../../wailsjs/go/main/App";
+import { useState, useEffect } from "react";
+import { SetTheme, SetCustomColor, GetCustomColor } from "../../wailsjs/go/main/App";
 import { THEMES, THEME_NAMES, applyTheme } from "../theme";
 
 interface SettingsPageProps {
@@ -9,11 +9,31 @@ interface SettingsPageProps {
 
 export default function SettingsPage({ currentTheme, onThemeChange }: SettingsPageProps) {
   const [activeSection, setActiveSection] = useState<"megjelenes">("megjelenes");
+  const [customColor, setCustomColor] = useState("#2d6a4f");
+
+  useEffect(() => {
+    GetCustomColor().then((c) => { if (c) setCustomColor(c); }).catch(() => {});
+  }, []);
 
   const handleTheme = (name: string) => {
     applyTheme(name);
     onThemeChange(name);
     SetTheme(name).catch(() => {});
+  };
+
+  const handleSelectEgyedi = () => {
+    applyTheme("Egyedi", customColor);
+    onThemeChange("Egyedi");
+    SetTheme("Egyedi").catch(() => {});
+    SetCustomColor(customColor).catch(() => {});
+  };
+
+  const handleCustomColor = (color: string) => {
+    setCustomColor(color);
+    applyTheme("Egyedi", color);
+    onThemeChange("Egyedi");
+    SetTheme("Egyedi").catch(() => {});
+    SetCustomColor(color).catch(() => {});
   };
 
   return (
@@ -53,7 +73,39 @@ export default function SettingsPage({ currentTheme, onThemeChange }: SettingsPa
                     </button>
                   );
                 })}
+                <button
+                  className={`theme-swatch-btn${currentTheme === "Egyedi" ? " active" : ""}`}
+                  onClick={handleSelectEgyedi}
+                  title="Egyedi"
+                >
+                  <span
+                    className="theme-swatch-circle theme-swatch-custom"
+                    style={currentTheme === "Egyedi" ? { background: customColor } : undefined}
+                  />
+                  <span className="theme-swatch-label">Egyedi</span>
+                </button>
               </div>
+
+              {currentTheme === "Egyedi" && (
+                <div className="custom-theme-panel">
+                  <div className="settings-field-label">Fő szín</div>
+                  <div className="custom-color-row">
+                    <label className="custom-color-swatch-wrap">
+                      <input
+                        type="color"
+                        className="custom-color-native"
+                        value={customColor}
+                        onChange={(e) => handleCustomColor(e.target.value)}
+                      />
+                      <span
+                        className="custom-color-swatch"
+                        style={{ background: customColor }}
+                      />
+                    </label>
+                    <span className="custom-color-hex">{customColor.toUpperCase()}</span>
+                  </div>
+                </div>
+              )}
             </div>
           </section>
         )}

@@ -578,11 +578,11 @@ func safeStr(s string) string {
 
 func (a *App) GetCurrentTheme() string {
 	if a.db == nil {
-		return "Erdő"
+		return "Zöld"
 	}
 	t := a.db.GetMeta("theme")
 	if t == "" {
-		return "Erdő"
+		return "Zöld"
 	}
 	return t
 }
@@ -592,6 +592,24 @@ func (a *App) SetTheme(themeName string) {
 		return
 	}
 	a.db.SetMeta("theme", themeName)
+}
+
+func (a *App) GetCustomColor() string {
+	if a.db == nil {
+		return "#2d6a4f"
+	}
+	c := a.db.GetMeta("custom_color")
+	if c == "" {
+		return "#2d6a4f"
+	}
+	return c
+}
+
+func (a *App) SetCustomColor(color string) {
+	if a.db == nil {
+		return
+	}
+	a.db.SetMeta("custom_color", color)
 }
 
 func (a *App) OpenGitHub() {
