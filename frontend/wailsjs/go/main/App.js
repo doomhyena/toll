@@ -177,3 +177,7 @@ export function SwitchAccount(arg1) {
 export function ToggleCountdown(arg1) {
   return window['go']['main']['App']['ToggleCountdown'](arg1);
 }
+
+export function ExportTimetableICS(arg1, arg2) {
+  return window['go']['main']['App']['ExportTimetableICS'](arg1, arg2);
+}

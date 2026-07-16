@@ -90,3 +90,5 @@ export function SetTheme(arg1:string):Promise<void>;
 export function SwitchAccount(arg1:string):Promise<models.AccountInfo>;
 
 export function ToggleCountdown(arg1:number):Promise<void>;
+
+export function ExportTimetableICS(arg1:string,arg2:string):Promise<string>;

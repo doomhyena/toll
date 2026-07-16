@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { GetTimetable, GetBellSchedule } from "../../wailsjs/go/main/App";
+import { GetTimetable, GetBellSchedule, ExportTimetableICS } from "../../wailsjs/go/main/App";
 import type { Lesson, BellPeriod } from "../types/kreta";
 
 type ViewMode = "weekdays" | "weekdays-sat" | "full-week";
@@ -275,6 +275,28 @@ export default function OrarendPage() {
             Ezen a héten
           </button>
         )}
+          <button
+            className="view-btn"
+            onClick={async () => {
+              const start = toISO(monday);
+              const endD = new Date(monday);
+              endD.setDate(endD.getDate() + 90);
+              try {
+                const path = await ExportTimetableICS(start, toISO(endD));
+                if (path) {
+                  alert(
+                    "Naptárfájl elmentve:\n" + path +
+                    "\n\nGoogle Naptár: Beállítások → Importálás és exportálás → Importálás\n" +
+                    "Proton Calendar: Beállítások → Naptárak → Naptár importálása"
+                  );
+                }
+              } catch (e: any) {
+                alert(typeof e === "string" ? e : e?.message ?? "Exportálási hiba");
+              }
+            }}
+          >
+            Exportálás naptárba (.ics)
+        </button>
       </div>
       {loading && (
         <div

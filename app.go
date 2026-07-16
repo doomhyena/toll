@@ -4,6 +4,10 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	"ellenorzo/backend/db"
+	"ellenorzo/backend/kreta"
+	"ellenorzo/backend/models"
+	"ellenorzo/backend/services"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -13,27 +17,24 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
-	"ellenorzo/backend/db"
-	"ellenorzo/backend/kreta"
-	"ellenorzo/backend/models"
-	"ellenorzo/backend/services"
+
 	"github.com/go-pdf/fpdf"
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type App struct {
-	ctx context.Context
-	cacheDir string
-	authSvc *services.AuthService
-	schoolSvc *services.SchoolService
+	ctx        context.Context
+	cacheDir   string
+	authSvc    *services.AuthService
+	schoolSvc  *services.SchoolService
 	accountSvc *services.AccountService
 	profileSvc *services.ProfileService
-	db *db.DB
+	db         *db.DB
 }
 
 func NewApp() *App {
 	return &App{
-		authSvc: services.NewAuthService(),
+		authSvc:   services.NewAuthService(),
 		schoolSvc: services.NewSchoolService(),
 	}
 }
@@ -64,7 +65,6 @@ func (a *App) startup(ctx context.Context) {
 	}
 }
 
-
 func (a *App) currentProfileID() string {
 	stored := a.accountSvc.GetActive()
 	if stored == nil {
@@ -72,7 +72,6 @@ func (a *App) currentProfileID() string {
 	}
 	return stored.ID
 }
-
 
 func (a *App) SearchInstitutes(query string) ([]models.Institute, error) {
 	return a.schoolSvc.Search(query)
@@ -107,12 +106,12 @@ func (a *App) GetCurrentAccount() *models.AccountInfo {
 		return nil
 	}
 	return &models.AccountInfo{
-		ID: stored.ID,
-		Name: stored.Name,
-		Username: stored.Username,
+		ID:            stored.ID,
+		Name:          stored.Name,
+		Username:      stored.Username,
 		InstituteCode: stored.Institute.InstituteCode,
 		InstituteName: stored.Institute.InstituteName,
-		IsActive: true,
+		IsActive:      true,
 	}
 }
 
@@ -521,6 +520,40 @@ func (a *App) ExportGradesPDF() (string, error) {
 	return path, nil
 }
 
+func (a *App) ExportTimetableICS(from, to string) (string, error) {
+	sess, err := a.authSvc.Session()
+	if err != nil {
+		return "", err
+	}
+
+	lessons, err := kreta.GetTimetable(sess, from, to)
+	if err != nil {
+		return "", err
+	}
+
+	name := "Órarend"
+	if account := a.GetCurrentAccount(); account != nil {
+		name = "Órarend – " + account.Name
+	}
+
+	ics := kreta.GenerateTimetableICS(lessons, name)
+
+	path, err := wailsRuntime.SaveFileDialog(a.ctx, wailsRuntime.SaveDialogOptions{
+		DefaultFilename: "orarend_" + time.Now().Format("2006-01-02") + ".ics",
+		Filters: []wailsRuntime.FileFilter{
+			{DisplayName: "iCalendar fájlok (*.ics)", Pattern: "*.ics"},
+		},
+	})
+	if err != nil || path == "" {
+		return "", err
+	}
+
+	if err := os.WriteFile(path, []byte(ics), 0644); err != nil {
+		return "", err
+	}
+	return path, nil
+}
+
 func safeStr(s string) string {
 	var b strings.Builder
 	for _, r := range s {
@@ -656,20 +689,20 @@ func (a *App) OpenDKT() {
 }
 
 type TaskItem struct {
-	ID string `json:"id"`
+	ID   string `json:"id"`
 	Text string `json:"text"`
-	Done bool `json:"done"`
+	Done bool   `json:"done"`
 }
 
 type FuzetEntry struct {
-	ID string  `json:"id"`
-	Type string `json:"type"`
-	Title string `json:"title"`
-	Content string `json:"content"`
-	Items []TaskItem `json:"items"`
-	ImageData string `json:"imageData"`
-	CreatedAt string `json:"createdAt"`
-	UpdatedAt string `json:"updatedAt"`
+	ID        string     `json:"id"`
+	Type      string     `json:"type"`
+	Title     string     `json:"title"`
+	Content   string     `json:"content"`
+	Items     []TaskItem `json:"items"`
+	ImageData string     `json:"imageData"`
+	CreatedAt string     `json:"createdAt"`
+	UpdatedAt string     `json:"updatedAt"`
 }
 
 func (a *App) entriesPath() string {
