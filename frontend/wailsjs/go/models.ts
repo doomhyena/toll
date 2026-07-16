@@ -399,6 +399,23 @@ export namespace models {
 	        this.color = source["color"];
 	    }
 	}
+	
+	export class BellPeriod {
+	    periodIndex: number;
+	    start: string;
+	    end: string;
+
+	    static createFrom(source: any = {}) {
+	        return new BellPeriod(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.periodIndex = source["periodIndex"];
+	        this.start = source["start"];
+	        this.end = source["end"];
+	    }
+	}
 	export class TeacherProfile {
 	    name: string;
 	    subjects: string[];

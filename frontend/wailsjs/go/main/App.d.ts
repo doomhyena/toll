@@ -25,6 +25,8 @@ export function GetCurrentAccount():Promise<models.AccountInfo>;
 
 export function GetCurrentTheme():Promise<string>;
 
+export function GetBellSchedule():Promise<Array<models.BellPeriod>>;
+
 export function GetCustomColor():Promise<string>;
 
 export function GetExams():Promise<Array<models.Exam>>;
@@ -76,6 +78,8 @@ export function SaveEntry(arg1:main.FuzetEntry):Promise<void>;
 export function SaveLocalProfile(arg1:models.LocalProfile):Promise<void>;
 
 export function SearchInstitutes(arg1:string):Promise<Array<models.Institute>>;
+
+export function SetBellSchedule(arg1:Array<models.BellPeriod>):Promise<void>;
 
 export function SetCustomColor(arg1:string):Promise<void>;
 

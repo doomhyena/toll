@@ -195,3 +195,9 @@ type SubjectAbsenceStat struct {
     MaxHours int `json:"maxHours"`
 }
 
+type BellPeriod struct {
+    PeriodIndex int  `json:"periodIndex"`
+    Start string `json:"start"`
+    End  string `json:"end"`
+}
+

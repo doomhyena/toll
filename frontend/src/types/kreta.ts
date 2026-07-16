@@ -89,3 +89,9 @@ export interface SubjectAbsence {
   usedHours: number;
   maxHours: number;
 }
+
+export interface BellPeriod {
+  periodIndex: number;
+  start: string;
+  end: string;
+}

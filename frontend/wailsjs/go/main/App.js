@@ -46,6 +46,10 @@ export function GetCurrentTheme() {
   return window['go']['main']['App']['GetCurrentTheme']();
 }
 
+export function GetBellSchedule() {
+  return window['go']['main']['App']['GetBellSchedule']();
+}
+
 export function GetCustomColor() {
   return window['go']['main']['App']['GetCustomColor']();
 }
@@ -148,6 +152,10 @@ export function SaveLocalProfile(arg1) {
 
 export function SearchInstitutes(arg1) {
   return window['go']['main']['App']['SearchInstitutes'](arg1);
+}
+
+export function SetBellSchedule(arg1) {
+  return window['go']['main']['App']['SetBellSchedule'](arg1);
 }
 
 export function SetCustomColor(arg1) {

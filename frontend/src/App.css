@@ -1,23 +1,23 @@
 ﻿:root {
-  --bg:             #181F1C;
-  --card-bg:        #274029;
-  --card-bg-dark:   #1e3321;
+  --bg: #181F1C;
+  --card-bg: #274029;
+  --card-bg-dark: #1e3321;
   --card-bg-subtle: #1a2620;
-  --card-bg-deep:   var(--card-bg-deep);
-  --border:         #315C2B;
-  --text-primary:   #E2E8DF;
+  --card-bg-deep: var(--card-bg-deep);
+  --border: #315C2B;
+  --text-primary: #E2E8DF;
   --text-secondary: #C4D0BE;
-  --text-muted:     #6A7D65;
-  --text-faint:     #4A5E46;
-  --text-dim:       var(--text-dim);
-  --accent-primary:   #2d6a4f;
+  --text-muted: #6A7D65;
+  --text-faint: #4A5E46;
+  --text-dim: var(--text-dim);
+  --accent-primary: #2d6a4f;
   --accent-secondary: #4a8f6e;
-  --accent-surface:   #1d3528;
-  --accent-text:      #86d0a8;
-  --accent-rgb:       45, 106, 79;
-  --accent-bright:    var(--accent-bright);
-  --accent-dim:       var(--accent-dim);
-  --accent-mid:       var(--accent-mid);
+  --accent-surface: #1d3528;
+  --accent-text:#86d0a8;
+  --accent-rgb: 45, 106, 79;
+  --accent-bright: var(--accent-bright);
+  --accent-dim: var(--accent-dim);
+  --accent-mid: var(--accent-mid);
   --accent: var(--accent-primary);
 }
 
@@ -4733,4 +4733,168 @@
 .about-modal-close-btn:active {
   transform: translateY(0);
   opacity: 1;
+}
+
+/* Bell schedule settings */
+
+.bell-schedule-hint {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.bell-empty {
+  font-size: 0.82rem;
+  color: var(--text-faint);
+  font-style: italic;
+  padding: 8px 0;
+}
+
+.bell-table {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bell-table-head {
+  display: grid;
+  grid-template-columns: 48px 1fr 1fr 32px;
+  gap: 8px;
+  padding: 0 4px 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  border-bottom: 1px solid var(--border);
+}
+
+.bell-table-row {
+  display: grid;
+  grid-template-columns: 48px 1fr 1fr 32px;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 4px;
+  border-radius: 7px;
+  transition: background 0.12s;
+}
+
+.bell-table-row:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.bell-period-num {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-text);
+  text-align: center;
+}
+
+.bell-time-input {
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  font-family: inherit;
+  padding: 6px 8px;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  color-scheme: dark;
+}
+
+.bell-time-input:focus {
+  border-color: var(--accent-primary);
+}
+
+.bell-remove-btn {
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-size: 0.8rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.13s, color 0.13s;
+}
+
+.bell-remove-btn:hover {
+  background-color: rgba(200, 60, 60, 0.15);
+  color: #e07070;
+}
+
+.bell-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+
+.bell-add-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.bell-add-btn:hover {
+  background-color: rgba(var(--accent-rgb), 0.1);
+  border-color: rgba(var(--accent-rgb), 0.4);
+  color: var(--accent-text);
+}
+
+.bell-reset-btn {
+  background: none;
+  border: 1px solid rgba(180, 50, 50, 0.3);
+  border-radius: 8px;
+  color: #c07070;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.bell-reset-btn:hover {
+  background-color: rgba(180, 50, 50, 0.1);
+  border-color: rgba(180, 50, 50, 0.5);
+  color: #e09090;
+}
+
+.bell-save-btn {
+  background-color: var(--border);
+  border: none;
+  border-radius: 8px;
+  color: var(--accent-text);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 7px 20px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.bell-save-btn:hover {
+  background-color: #3e7535;
+}
+
+.bell-save-btn.saved {
+  background-color: rgba(var(--accent-rgb), 0.2);
+  color: var(--accent-text);
+}
+
+.tt-period-custom {
+  color: var(--accent-secondary) !important;
 }

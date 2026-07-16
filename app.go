@@ -13,29 +13,27 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
-
 	"ellenorzo/backend/db"
 	"ellenorzo/backend/kreta"
 	"ellenorzo/backend/models"
 	"ellenorzo/backend/services"
-
 	"github.com/go-pdf/fpdf"
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type App struct {
-	ctx        context.Context
-	cacheDir   string
-	authSvc    *services.AuthService
-	schoolSvc  *services.SchoolService
+	ctx context.Context
+	cacheDir string
+	authSvc *services.AuthService
+	schoolSvc *services.SchoolService
 	accountSvc *services.AccountService
 	profileSvc *services.ProfileService
-	db         *db.DB
+	db *db.DB
 }
 
 func NewApp() *App {
 	return &App{
-		authSvc:   services.NewAuthService(),
+		authSvc: services.NewAuthService(),
 		schoolSvc: services.NewSchoolService(),
 	}
 }
@@ -109,12 +107,12 @@ func (a *App) GetCurrentAccount() *models.AccountInfo {
 		return nil
 	}
 	return &models.AccountInfo{
-		ID:            stored.ID,
-		Name:          stored.Name,
-		Username:      stored.Username,
+		ID: stored.ID,
+		Name: stored.Name,
+		Username: stored.Username,
 		InstituteCode: stored.Institute.InstituteCode,
 		InstituteName: stored.Institute.InstituteName,
-		IsActive:      true,
+		IsActive: true,
 	}
 }
 
@@ -471,14 +469,12 @@ func (a *App) ExportGradesPDF() (string, error) {
 	pdf.SetMargins(15, 15, 15)
 	pdf.AddPage()
 
-	// Title
 	pdf.SetFont("Arial", "B", 16)
 	pdf.CellFormat(0, 10, safeStr("Jegyek – "+name), "", 1, "C", false, 0, "")
 	pdf.SetFont("Arial", "", 10)
 	pdf.CellFormat(0, 6, safeStr(time.Now().Format("2006-01-02")), "", 1, "C", false, 0, "")
 	pdf.Ln(4)
 
-	// Header
 	pdf.SetFillColor(39, 64, 41)
 	pdf.SetTextColor(255, 255, 255)
 	pdf.SetFont("Arial", "B", 10)
@@ -612,6 +608,33 @@ func (a *App) SetCustomColor(color string) {
 	a.db.SetMeta("custom_color", color)
 }
 
+func (a *App) GetBellSchedule() []models.BellPeriod {
+	if a.db == nil {
+		return nil
+	}
+	raw := a.db.GetMeta("bell_schedule")
+	if raw == "" {
+		return nil
+	}
+	var sched []models.BellPeriod
+	if err := json.Unmarshal([]byte(raw), &sched); err != nil {
+		return nil
+	}
+	return sched
+}
+
+func (a *App) SetBellSchedule(schedule []models.BellPeriod) error {
+	if a.db == nil {
+		return fmt.Errorf("adatbázis nem elérhető")
+	}
+	data, err := json.Marshal(schedule)
+	if err != nil {
+		return err
+	}
+	a.db.SetMeta("bell_schedule", string(data))
+	return nil
+}
+
 func (a *App) OpenGitHub() {
 	wailsRuntime.BrowserOpenURL(a.ctx, GitHubURL)
 }
@@ -633,20 +656,20 @@ func (a *App) OpenDKT() {
 }
 
 type TaskItem struct {
-	ID   string `json:"id"`
+	ID string `json:"id"`
 	Text string `json:"text"`
-	Done bool   `json:"done"`
+	Done bool `json:"done"`
 }
 
 type FuzetEntry struct {
-	ID        string     `json:"id"`
-	Type      string     `json:"type"`
-	Title     string     `json:"title"`
-	Content   string     `json:"content"`
-	Items     []TaskItem `json:"items"`
-	ImageData string     `json:"imageData"`
-	CreatedAt string     `json:"createdAt"`
-	UpdatedAt string     `json:"updatedAt"`
+	ID string  `json:"id"`
+	Type string `json:"type"`
+	Title string `json:"title"`
+	Content string `json:"content"`
+	Items []TaskItem `json:"items"`
+	ImageData string `json:"imageData"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
 }
 
 func (a *App) entriesPath() string {

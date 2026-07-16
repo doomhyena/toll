@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { GetTimetable } from "../../wailsjs/go/main/App";
-import type { Lesson } from "../types/kreta";
+import { GetTimetable, GetBellSchedule } from "../../wailsjs/go/main/App";
+import type { Lesson, BellPeriod } from "../types/kreta";
 
 type ViewMode = "weekdays" | "weekdays-sat" | "full-week";
 
@@ -144,6 +144,14 @@ interface DayColumn {
   lessons: Lesson[];
 }
 
+function todayISO(): string {
+  return toISO(new Date());
+}
+
+function customTimeToMs(date: string, time: string): number {
+  return new Date(`${date}T${time}:00`).getTime();
+}
+
 export default function OrarendPage() {
   const [mode, setMode] = useState<ViewMode>("weekdays");
   const [monday, setMonday] = useState(() => weekMonday(new Date()));
@@ -151,6 +159,11 @@ export default function OrarendPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<Lesson | null>(null);
+  const [bellSchedule, setBellSchedule] = useState<BellPeriod[]>([]);
+
+  useEffect(() => {
+    GetBellSchedule().then((s) => setBellSchedule(s ?? [])).catch(() => {});
+  }, []);
 
   const extraDays = VIEW_MODES.find((v) => v.id === mode)!.extraDays;
 
@@ -168,7 +181,11 @@ export default function OrarendPage() {
       .finally(() => setLoading(false));
   }, [monday, extraDays]);
 
-  const today = toISO(new Date());
+  const today = todayISO();
+
+  const bellMap = new Map<number, BellPeriod>(
+    bellSchedule.map((p) => [p.periodIndex, p])
+  );
 
   const columns: DayColumn[] = Array.from({ length: extraDays + 1 }, (_, i) => {
     const d = new Date(monday);
@@ -327,29 +344,54 @@ export default function OrarendPage() {
                     >
                       <td className="tt-time-cell">
                         <span className="tt-period-num">{period}.</span>
-                        {sample && (
-                          <span className="tt-period-range">
-                            {fmtTime(sample.start)}
-                            <br />
-                            {fmtTime(sample.end)}
-                          </span>
-                        )}
+                        {(() => {
+                          const custom = bellMap.get(period);
+                          if (custom) {
+                            return (
+                              <span className="tt-period-range tt-period-custom" title="Egyéni csengetési rend">
+                                {custom.start}
+                                <br />
+                                {custom.end}
+                              </span>
+                            );
+                          }
+                          if (sample) {
+                            return (
+                              <span className="tt-period-range">
+                                {fmtTime(sample.start)}
+                                <br />
+                                {fmtTime(sample.end)}
+                              </span>
+                            );
+                          }
+                          return null;
+                        })()}
                       </td>
                       {columns.map((col) => {
                         const lesson = col.lessons.find(
                           (l) => l.periodIndex === period
                         );
 
+                        const custom = bellMap.get(period);
+                        const lessonDate = col.date;
+
+                        const startMs = custom
+                          ? customTimeToMs(lessonDate, custom.start)
+                          : lesson ? new Date(lesson.start).getTime() : 0;
+                        const endMs = custom
+                          ? customTimeToMs(lessonDate, custom.end)
+                          : lesson ? new Date(lesson.end).getTime() : 0;
+
                         const isCurrent =
                           col.isToday &&
                           !!lesson &&
-                          new Date(lesson.start).getTime() <= nowMs &&
-                          nowMs < new Date(lesson.end).getTime();
+                          startMs <= nowMs &&
+                          nowMs < endMs;
 
                         const isPast =
                           col.isToday &&
                           !!lesson &&
-                          nowMs >= new Date(lesson.end).getTime();
+                          nowMs >= endMs;
 
                         return (
                           <td
