@@ -18,6 +18,10 @@ export function ExportGradesPDF() {
   return window['go']['main']['App']['ExportGradesPDF']();
 }
 
+export function ExportTimetableICS(arg1, arg2) {
+  return window['go']['main']['App']['ExportTimetableICS'](arg1, arg2);
+}
+
 export function GetAbsenceStats() {
   return window['go']['main']['App']['GetAbsenceStats']();
 }
@@ -28,6 +32,10 @@ export function GetAbsences() {
 
 export function GetAccounts() {
   return window['go']['main']['App']['GetAccounts']();
+}
+
+export function GetBellSchedule() {
+  return window['go']['main']['App']['GetBellSchedule']();
 }
 
 export function GetChangesSinceLastOpen() {
@@ -44,10 +52,6 @@ export function GetCurrentAccount() {
 
 export function GetCurrentTheme() {
   return window['go']['main']['App']['GetCurrentTheme']();
-}
-
-export function GetBellSchedule() {
-  return window['go']['main']['App']['GetBellSchedule']();
 }
 
 export function GetCustomColor() {
@@ -176,8 +180,4 @@ export function SwitchAccount(arg1) {
 
 export function ToggleCountdown(arg1) {
   return window['go']['main']['App']['ToggleCountdown'](arg1);
-}
-
-export function ExportTimetableICS(arg1, arg2) {
-  return window['go']['main']['App']['ExportTimetableICS'](arg1, arg2);
 }

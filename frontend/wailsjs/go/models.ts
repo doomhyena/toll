@@ -109,6 +109,22 @@ export namespace models {
 	        this.isActive = source["isActive"];
 	    }
 	}
+	export class BellPeriod {
+	    periodIndex: number;
+	    start: string;
+	    end: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new BellPeriod(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.periodIndex = source["periodIndex"];
+	        this.start = source["start"];
+	        this.end = source["end"];
+	    }
+	}
 	export class Change {
 	    type: string;
 	    content: string;
@@ -397,23 +413,6 @@ export namespace models {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.subject = source["subject"];
 	        this.color = source["color"];
-	    }
-	}
-	
-	export class BellPeriod {
-	    periodIndex: number;
-	    start: string;
-	    end: string;
-
-	    static createFrom(source: any = {}) {
-	        return new BellPeriod(source);
-	    }
-
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.periodIndex = source["periodIndex"];
-	        this.start = source["start"];
-	        this.end = source["end"];
 	    }
 	}
 	export class TeacherProfile {
