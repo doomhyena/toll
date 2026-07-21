@@ -11,11 +11,15 @@ export function ExportGradesCSV():Promise<string>;
 
 export function ExportGradesPDF():Promise<string>;
 
+export function ExportTimetableICS(arg1:string,arg2:string):Promise<string>;
+
 export function GetAbsenceStats():Promise<Array<models.SubjectAbsenceStat>>;
 
 export function GetAbsences():Promise<Array<models.Absence>>;
 
 export function GetAccounts():Promise<Array<models.AccountInfo>>;
+
+export function GetBellSchedule():Promise<Array<models.BellPeriod>>;
 
 export function GetChangesSinceLastOpen():Promise<Array<models.Change>>;
 
@@ -24,8 +28,6 @@ export function GetCountdowns():Promise<Array<models.Countdown>>;
 export function GetCurrentAccount():Promise<models.AccountInfo>;
 
 export function GetCurrentTheme():Promise<string>;
-
-export function GetBellSchedule():Promise<Array<models.BellPeriod>>;
 
 export function GetCustomColor():Promise<string>;
 
@@ -90,5 +92,3 @@ export function SetTheme(arg1:string):Promise<void>;
 export function SwitchAccount(arg1:string):Promise<models.AccountInfo>;
 
 export function ToggleCountdown(arg1:number):Promise<void>;
-
-export function ExportTimetableICS(arg1:string,arg2:string):Promise<string>;
