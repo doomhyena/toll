@@ -1,10 +1,13 @@
-name: Release (Windows & macOS)
+name: Release (Windows, macOS & Linux)
 
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -14,31 +17,42 @@ jobs:
         include:
           - os: windows-latest
             platform: windows/amd64
-          - os: macos-latest
+            artifact: windows-amd64
+          - os: macos-14
             platform: darwin/universal
+            artifact: macos-universal
+          - os: ubuntu-latest
+            platform: linux/amd64
+            artifact: linux-amd64
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: "1.25.x"
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
+
+      - name: Install Linux build dependencies
+        if: runner.os == "Linux"
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev
 
       - name: Install Wails
-        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.13.0
 
       - name: Build
         run: wails build -platform ${{ matrix.platform }}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: build-${{ matrix.os }}
+          name: build-${{ matrix.artifact }}
           path: build/bin/**
-  
+
   release:
     needs: build
     runs-on: ubuntu-latest
